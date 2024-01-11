@@ -7,4 +7,6 @@ public record QuestionData(
 
  Long quizId) {
 
+
+
 }
