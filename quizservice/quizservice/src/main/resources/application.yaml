@@ -41,7 +41,22 @@ resilience4j:
         waitDurationInOpenState: 6s
         permittedNumberOfCallsInHalfOpenState: 3
         slidingWindowSize: 10
-        slidingWindowType: COUNT_BASED             
+        slidingWindowType: COUNT_BASED 
+  retry:
+    instances:
+      getAllQuestions:
+        wait-duration: 5s
+        max-attempts: 3  
+      quizQuestionService:
+        wait-duration: 5s
+        max-attempts: 3 
+  ratelimiter:
+    instances:
+      getAllQuestionsLimiter:
+        limit-for-period: 2
+        limit-refresh-period: 4s
+        timeout-duration: 2s                         
+
 management:
   health:
     circuitbreakers:
@@ -52,5 +67,6 @@ management:
         include: health
   endpoint:
     health:
-      show-details: always    
+      show-details: always
+         
   

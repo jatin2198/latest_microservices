@@ -25,6 +25,8 @@ import com.quizservice.services.QuizServiceImpl;
 import com.quizservice.services.QuizServices;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 
 @RestController
 @RequestMapping("/quiz")
@@ -44,7 +46,8 @@ public class QuizContoller {
 	}
 	
 	@GetMapping("/all_quiz")
-	@CircuitBreaker(name = "getAllQuestions", fallbackMethod = "getAllQuestion")
+	//@CircuitBreaker(name = "getAllQuestions", fallbackMethod = "getAllQuestion")
+	@Retry(name = "getAllQuestions", fallbackMethod = "getAllQuestion" )
 	public ResponseEntity getAllQuiz() {
 	List<QuizEntity> list= services.getAllQuiz().stream().map(quiz->{
 		
@@ -59,7 +62,9 @@ public class QuizContoller {
 	
 	
 	@GetMapping("/get_quiz/{id}")
-	@CircuitBreaker(name = "quizQuestionService", fallbackMethod = "getAllQuizFallback")
+	//@CircuitBreaker(name = "quizQuestionService", fallbackMethod = "getAllQuizFallback")
+	//@Retry(name = "quizQuestionService", fallbackMethod = "getAllQuizFallback")
+	@RateLimiter(name = "getAllQuestionsLimiter",fallbackMethod = "getAllQuizFallback")
 	public ResponseEntity getByQuiz(@PathVariable Long id) {
 		QuizEntity entity=services.getQuizById(id);
 		entity.setQuestions(questionClient.getQuestions(entity.getId()));
@@ -67,14 +72,17 @@ public class QuizContoller {
 		
 	}
 	
+	int retry=1;
+	
 	public ResponseEntity getAllQuizFallback(Long id, Exception exception) {
 		logger.info("Fallback "+exception.getMessage());
-	
+	logger.info("No of retries= "+retry);
+	retry++;
 		QuizEntity entity=new QuizEntity();
 		entity.setTitle("fallback response");
 	    entity.setId(0000L);
 	   
-		 return ResponseEntity.status(HttpStatus.OK).body(entity);
+		 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(entity);
 		
 	}
 	
@@ -85,7 +93,7 @@ public class QuizContoller {
 		entity.setTitle("fallback response");
 	    entity.setId(0000L);
 	   
-		 return ResponseEntity.status(HttpStatus.OK).body(entity);
+		 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(entity);
 		
 	}
 
