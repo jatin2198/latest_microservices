@@ -2,6 +2,9 @@ package com.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.core.userdetails.UserDetailsService;
+
+import com.security.securityconfig.Autowired;
 
 @SpringBootApplication
 public class ServicesGatewayApplication {
